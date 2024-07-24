@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CreateRoomResponse } from "~/types/RoomTypes";
+import type { Room } from "~/types/RoomTypes";
 
 const isJoinRoomOpen = ref(false);
 
@@ -9,12 +9,26 @@ const handleJoinRoomClick = async () => {
     isJoinRoomOpen.value = true;
 };
 
+const handleSubmitRoomNumberClick = async () => {
+    navigateTo(`/room/${roomNumberToJoin.value}`);
+};
+
 const handleNewRoomClick = async () => {
-    const data = await useApiFetch<CreateRoomResponse>("/room", {
+    const data = await useApiFetch<Room>("/room", {
         method: "POST",
     });
     navigateTo(`/room/${data.id}`);
 };
+
+defineShortcuts({
+    enter: {
+        usingInput: true,
+        whenever: [isJoinRoomOpen, () => roomNumberToJoin.value.length > 0],
+        handler: () => {
+            console.log("OkOk");
+        },
+    },
+});
 </script>
 
 <template>
@@ -31,7 +45,10 @@ const handleNewRoomClick = async () => {
     <UModal v-model="isJoinRoomOpen">
         <div class="p-4">
             <UInput v-model="roomNumberToJoin" placeholder="Kod pokoju" />
-            <UButton v-if="roomNumberToJoin.length != 0" class="mt-4"
+            <UButton
+                v-if="roomNumberToJoin.length != 0"
+                @click="handleSubmitRoomNumberClick"
+                class="mt-4"
                 >Dołącz</UButton
             >
         </div>
